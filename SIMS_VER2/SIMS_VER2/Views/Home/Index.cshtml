@@ -1,0 +1,198 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <h1 class="page-title">
+        <i class="bi bi-house-door-fill"></i> Welcome, @User.Identity.Name!
+    </h1>
+    
+    <div class="stats-grid">
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="dashboard-card">
+                <div class="dashboard-card-icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="dashboard-card-title">Total Students</div>
+                <div class="dashboard-card-value">-</div>
+                <a href="@Url.Action("Index", "AdminStudents")" class="btn btn-outline-primary btn-sm mt-2">
+                    Manage Students <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="dashboard-card-icon">
+                    <i class="bi bi-book-fill"></i>
+                </div>
+                <div class="dashboard-card-title">Total Courses</div>
+                <div class="dashboard-card-value">-</div>
+                <a href="@Url.Action("Index", "AdminCourses")" class="btn btn-outline-primary btn-sm mt-2">
+                    Manage Courses <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="dashboard-card-icon">
+                    <i class="bi bi-calendar-check-fill"></i>
+                </div>
+                <div class="dashboard-card-title">Course Offerings</div>
+                <div class="dashboard-card-value">-</div>
+                <a href="@Url.Action("Index", "AdminCourseOfferings")" class="btn btn-outline-primary btn-sm mt-2">
+                    Manage Offerings <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        }
+        else if (User.IsInRole("Student"))
+        {
+            <div class="dashboard-card">
+                <div class="dashboard-card-icon">
+                    <i class="bi bi-bookmark-fill"></i>
+                </div>
+                <div class="dashboard-card-title">My Courses</div>
+                <div class="dashboard-card-value">-</div>
+                <a href="@Url.Action("MyCourses", "StudentDashboard")" class="btn btn-outline-primary btn-sm mt-2">
+                    View Courses <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="dashboard-card-icon">
+                    <i class="bi bi-search"></i>
+                </div>
+                <div class="dashboard-card-title">Browse Courses</div>
+                <div class="dashboard-card-value">-</div>
+                <a href="@Url.Action("BrowseCourses", "StudentDashboard")" class="btn btn-outline-primary btn-sm mt-2">
+                    Browse Now <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="dashboard-card-icon">
+                    <i class="bi bi-trophy-fill"></i>
+                </div>
+                <div class="dashboard-card-title">My Grades</div>
+                <div class="dashboard-card-value">-</div>
+                <a href="@Url.Action("Grades", "StudentDashboard")" class="btn btn-outline-primary btn-sm mt-2">
+                    View Grades <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        }
+        else if (User.IsInRole("Faculty"))
+        {
+            <div class="dashboard-card">
+                <div class="dashboard-card-icon">
+                    <i class="bi bi-calendar-check-fill"></i>
+                </div>
+                <div class="dashboard-card-title">My Offerings</div>
+                <div class="dashboard-card-value">-</div>
+                <a href="@Url.Action("MyOfferings", "FacultyCourses")" class="btn btn-outline-primary btn-sm mt-2">
+                    View Offerings <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        }
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-info-circle"></i> Quick Actions</h5>
+        </div>
+        <div class="card-body">
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="d-flex gap-2 flex-wrap">
+                    <a class="btn btn-primary" asp-controller="AdminStudents" asp-action="Index">
+                        <i class="bi bi-people"></i> Manage Students
+                    </a>
+                    <a class="btn btn-primary" asp-controller="AdminCourses" asp-action="Index">
+                        <i class="bi bi-book"></i> Manage Courses
+                    </a>
+                    <a class="btn btn-primary" asp-controller="AdminCourseOfferings" asp-action="Index">
+                        <i class="bi bi-calendar-check"></i> Manage Offerings
+                    </a>
+                </div>
+            }
+            else if (User.IsInRole("Student"))
+            {
+                <div class="d-flex gap-2 flex-wrap">
+                    <a class="btn btn-primary" asp-controller="StudentDashboard" asp-action="Dashboard">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                    <a class="btn btn-primary" asp-controller="StudentDashboard" asp-action="BrowseCourses">
+                        <i class="bi bi-search"></i> Browse Courses
+                    </a>
+                    <a class="btn btn-primary" asp-controller="StudentDashboard" asp-action="MyCourses">
+                        <i class="bi bi-bookmark"></i> My Courses
+                    </a>
+                    <a class="btn btn-primary" asp-controller="StudentDashboard" asp-action="Grades">
+                        <i class="bi bi-trophy"></i> Grades
+                    </a>
+                </div>
+            }
+            else if (User.IsInRole("Faculty"))
+            {
+                <div class="d-flex gap-2 flex-wrap">
+                    <a class="btn btn-primary" asp-controller="FacultyDashboard" asp-action="Dashboard">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                    <a class="btn btn-primary" asp-controller="FacultyCourses" asp-action="MyOfferings">
+                        <i class="bi bi-calendar-check"></i> My Offerings
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center" style="padding: 60px 20px;">
+        <div class="mb-4">
+            <i class="bi bi-mortarboard-fill" style="font-size: 5rem; color: var(--primary-color);"></i>
+        </div>
+        <h1 class="display-4 mb-3" style="color: var(--primary-color); font-weight: 700;">
+            Student Information Management System
+        </h1>
+        <p class="lead mb-4" style="color: var(--secondary-color);">
+            Manage your academic journey with ease
+        </p>
+        <div class="mt-5">
+            <a class="btn btn-primary btn-lg me-3" asp-controller="Auth" asp-action="Login" style="padding: 12px 30px;">
+                <i class="bi bi-box-arrow-in-right"></i> Login
+            </a>
+            <a class="btn btn-outline-primary btn-lg" asp-controller="Auth" asp-action="Register" style="padding: 12px 30px;">
+                <i class="bi bi-person-plus"></i> Register
+            </a>
+        </div>
+        
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people-fill" style="font-size: 3rem; color: var(--primary-color);"></i>
+                        <h5 class="mt-3">For Students</h5>
+                        <p class="text-muted">Browse courses, enroll in classes, and track your academic progress.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-person-badge-fill" style="font-size: 3rem; color: var(--primary-color);"></i>
+                        <h5 class="mt-3">For Faculty</h5>
+                        <p class="text-muted">Manage course offerings, view enrolled students, and enter grades.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-shield-check-fill" style="font-size: 3rem; color: var(--primary-color);"></i>
+                        <h5 class="mt-3">For Administrators</h5>
+                        <p class="text-muted">Manage students, courses, and course offerings efficiently.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

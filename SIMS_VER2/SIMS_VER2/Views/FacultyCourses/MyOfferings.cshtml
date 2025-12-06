@@ -1,0 +1,63 @@
+@model IEnumerable<SIMS_VER2.Models.CourseOffering>
+@{
+    ViewData["Title"] = "My Course Offerings";
+}
+
+<h2>My Course Offerings</h2>
+<hr />
+
+@if (Model != null && Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Class Code</th>
+                    <th>Course Name</th>
+                    <th>Course Code</th>
+                    <th>Semester</th>
+                    <th>Year</th>
+                    <th>Enrolled/Max</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var enrolledCount = item.Enrollments?.Count ?? 0;
+                    <tr>
+                        <td><strong>@item.ClassCode</strong></td>
+                        <td>@item.Course?.CourseName</td>
+                        <td>@item.Course?.CourseCode</td>
+                        <td>@item.Semester</td>
+                        <td>@item.Year</td>
+                        <td>@enrolledCount / @item.MaxStudents</td>
+                        <td>
+                            <span class="badge bg-@(item.Status == "OPEN" ? "success" : item.Status == "ONGOING" ? "primary" : "secondary")">
+                                @item.Status
+                            </span>
+                        </td>
+                        <td>
+                            <a asp-action="OfferingStudents" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                                <i class="bi bi-people"></i> Manage Students & Grades
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <h5>No course offerings</h5>
+        <p>You are not currently assigned to any course offerings.</p>
+    </div>
+}
+
+<div class="mt-4">
+    <a asp-controller="FacultyDashboard" asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+

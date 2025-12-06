@@ -1,0 +1,96 @@
+@model IEnumerable<SIMS_VER2.Models.CourseOffering>
+@{
+    ViewData["Title"] = "Faculty Dashboard";
+}
+
+<h1 class="page-title">
+    <i class="bi bi-speedometer2"></i> Faculty Dashboard
+</h1>
+
+<div class="stats-grid">
+    <div class="dashboard-card">
+        <div class="dashboard-card-icon">
+            <i class="bi bi-calendar-check-fill"></i>
+        </div>
+        <div class="dashboard-card-title">Total Offerings</div>
+        <div class="dashboard-card-value">@(Model?.Count() ?? 0)</div>
+    </div>
+    
+    <div class="dashboard-card">
+        <div class="dashboard-card-icon">
+            <i class="bi bi-people-fill"></i>
+        </div>
+        <div class="dashboard-card-title">Total Students</div>
+        <div class="dashboard-card-value">@(Model?.Sum(o => o.Enrollments?.Count ?? 0) ?? 0)</div>
+    </div>
+    
+    <div class="dashboard-card">
+        <div class="dashboard-card-icon">
+            <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <div class="dashboard-card-title">Active Offerings</div>
+        <div class="dashboard-card-value">@(Model?.Count(o => o.Status == "ONGOING" || o.Status == "OPEN") ?? 0)</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-calendar-check-fill"></i> My Course Offerings
+    </div>
+    <div class="card-body">
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Class Code</th>
+                            <th>Course Name</th>
+                            <th>Course Code</th>
+                            <th>Semester</th>
+                            <th>Year</th>
+                            <th>Enrolled/Max</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var enrolledCount = item.Enrollments?.Count ?? 0;
+                            <tr>
+                                <td><strong>@item.ClassCode</strong></td>
+                                <td>@item.Course?.CourseName</td>
+                                <td>@item.Course?.CourseCode</td>
+                                <td>@item.Semester</td>
+                                <td>@item.Year</td>
+                                <td>
+                                    <span class="badge badge-info">@enrolledCount</span> / 
+                                    <span class="badge badge-secondary">@item.MaxStudents</span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-@(item.Status == "OPEN" ? "success" : item.Status == "ONGOING" ? "primary" : "secondary")">
+                                        @item.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <a asp-controller="FacultyCourses" asp-action="OfferingStudents" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-people"></i> Manage Students
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i>
+                <strong>No course offerings</strong>
+                <p class="mb-0">You are not currently assigned to any course offerings.</p>
+            </div>
+        }
+    </div>
+</div>

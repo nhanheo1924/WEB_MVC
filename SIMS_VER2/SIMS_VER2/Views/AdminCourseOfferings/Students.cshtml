@@ -1,0 +1,68 @@
+@model IEnumerable<SIMS_VER2.Models.Enrollment>
+@{
+    ViewData["Title"] = "Quản lý Sinh viên trong lớp";
+    var offering = ViewBag.Offering as SIMS_VER2.Models.CourseOffering;
+}
+
+<h2>Quản lý Sinh viên - @offering?.ClassCode</h2>
+<hr />
+
+<div class="mb-3">
+    <h4>Thông tin lớp: @offering?.Course?.CourseName - @offering?.Semester/@offering?.Year</h4>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header">Thêm sinh viên</div>
+    <div class="card-body">
+        <form asp-action="AddStudent" method="post">
+            <input type="hidden" name="offeringId" value="@offering?.Id" />
+            <div class="row">
+                <div class="col-md-6">
+                    <select name="studentId" class="form-control" asp-items="ViewBag.Students">
+                        <option value="">-- Chọn sinh viên --</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary">Thêm</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Mã SV</th>
+            <th>Họ tên</th>
+            <th>Chương trình</th>
+            <th>Trạng thái</th>
+            <th>Điểm</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Student.StudentCode</td>
+                <td>@item.Student.FullName</td>
+                <td>@item.Student.Program</td>
+                <td>@item.Status</td>
+                <td>@(item.Grade?.ToString("F2") ?? "N/A")</td>
+                <td>
+                    <form asp-action="RemoveStudent" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa sinh viên này khỏi lớp?');">
+                        <input type="hidden" name="offeringId" value="@offering?.Id" />
+                        <input type="hidden" name="enrollmentId" value="@item.Id" />
+                        <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</div>
+

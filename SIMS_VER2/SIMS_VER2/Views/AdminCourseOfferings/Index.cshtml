@@ -1,0 +1,84 @@
+@model IEnumerable<SIMS_VER2.Models.CourseOffering>
+@{
+    ViewData["Title"] = "Manage Course Offerings";
+}
+
+<h2>Course Offerings List</h2>
+<hr />
+
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-primary">Create New Course Offering</a>
+</div>
+
+<form asp-action="Index" method="get" class="mb-3">
+    <div class="row">
+        <div class="col-md-3">
+            <input type="text" name="semester" value="@ViewBag.Semester" class="form-control" placeholder="Semester" />
+        </div>
+        <div class="col-md-2">
+            <input type="number" name="year" value="@ViewBag.Year" class="form-control" placeholder="Year" />
+        </div>
+        <div class="col-md-3">
+            <select name="courseId" class="form-control" asp-items="ViewBag.Courses">
+                <option value="">-- All Courses --</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-secondary">Filter</button>
+        </div>
+    </div>
+</form>
+
+@if (Model != null && Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Class Code</th>
+                    <th>Course</th>
+                    <th>Semester</th>
+                    <th>Year</th>
+                    <th>Instructor</th>
+                    <th>Enrolled/Max</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var enrolledCount = item.Enrollments?.Count ?? 0;
+                    <tr>
+                        <td><strong>@item.ClassCode</strong></td>
+                        <td>@item.Course?.CourseName (@item.Course?.CourseCode)</td>
+                        <td>@item.Semester</td>
+                        <td>@item.Year</td>
+                        <td>@(item.Instructor?.Username ?? "TBA")</td>
+                        <td>@enrolledCount / @item.MaxStudents</td>
+                        <td>
+                            <span class="badge bg-@(item.Status == "OPEN" ? "success" : item.Status == "ONGOING" ? "primary" : "secondary")">
+                                @item.Status
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                                <a asp-action="Students" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Manage Students</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <h5>No course offerings found</h5>
+        <p>No course offerings match your filter criteria.</p>
+    </div>
+}
+

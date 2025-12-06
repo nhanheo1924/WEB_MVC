@@ -1,0 +1,118 @@
+UI Requirements for SIMS MVC Project
+
+0. Shared Layout (_Layout.cshtml)
+- Header with logo and navigation.
+- Conditional menu for login/register or dashboard/logout.
+- Body: RenderBody().
+- Footer with system name.
+- TempData notifications.
+
+1. Auth Views
+1.1 Login.cshtml
+- Username input
+- Password input
+- Login button
+- Link to Register
+- Error display
+
+1.2 Register.cshtml
+- StudentCode
+- Username
+- Password
+- Confirm Password
+- Register button
+- Validation & error display
+
+1.3 AccessDenied.cshtml
+- Message: no permission
+- Back button
+
+2. Home (Index.cshtml)
+- Welcome message
+- If not logged in: Login/Register buttons
+- If logged in: Go to dashboard
+
+3. Admin – Students
+3.1 Index.cshtml
+- List students table
+- Create new button
+- Search box
+- Actions: Details/Edit/Delete
+
+3.2 Create.cshtml
+- Form: StudentCode, FullName, DOB, Gender, Email, Phone, Address, Program, Intake, Status
+- Save/Cancel
+
+3.3 Edit.cshtml
+- Same as Create, populated fields
+
+3.4 Details.cshtml
+- Read-only student info
+- Optional enrollment list
+- Edit button
+
+4. Admin – Courses
+4.1 Index.cshtml
+- List table
+- Create button
+- Search/filter
+
+4.2 Create/Edit.cshtml
+- CourseCode, CourseName, Description, Credits, Program, Type
+- Save/Cancel
+
+4.3 Details.cshtml
+- Read-only info
+
+5. Admin – Course Offerings
+5.1 Index.cshtml
+- List offerings
+- Filter by semester/year/course
+- Create button
+
+5.2 Create/Edit.cshtml
+- Course dropdown
+- Semester, Year
+- ClassCode
+- Instructor dropdown
+- MaxStudents
+- Status dropdown
+
+5.3 Details.cshtml
+- Showing offering info
+- Link Manage Students
+
+5.4 Students.cshtml
+- Offering summary
+- Table of enrolled students
+- Add Student (textbox or dropdown)
+- Remove button
+- Error/success messages
+
+6. Student Views
+6.1 Dashboard.cshtml
+- Profile summary
+- Current courses table
+- Links to Profile / MyCourses
+
+6.2 Profile.cshtml
+- Read-only: StudentCode, FullName, DOB, Program, Intake
+- Editable: Email, Phone, Address
+- Save button
+
+6.3 MyCourses.cshtml
+- Table of all courses with status & grade
+- Optional filters
+
+7. Faculty Views
+7.1 Dashboard.cshtml
+- Instructor summary
+- Current offerings list
+
+7.2 MyOfferings.cshtml
+- Table of all offerings taught
+- Link ViewStudents
+
+7.3 OfferingStudents.cshtml
+- Student list for offering
+- Grade column (optional editable)

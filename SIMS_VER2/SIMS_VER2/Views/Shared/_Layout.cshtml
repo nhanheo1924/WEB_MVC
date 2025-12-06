@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SIMS</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+</head>
+<body>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <!-- Header -->
+        <header class="main-header">
+            <div class="main-nav">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-mortarboard-fill navbar-brand-icon"></i>
+                    <span>SIMS</span>
+                </a>
+                
+                <nav class="navbar-nav flex-row">
+                    <ul class="nav-menu">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-door"></i> Home
+                            </a>
+                        </li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="AdminStudents" asp-action="Index">
+                                    <i class="bi bi-people"></i> Students
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="AdminCourses" asp-action="Index">
+                                    <i class="bi bi-book"></i> Courses
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="AdminCourseOfferings" asp-action="Index">
+                                    <i class="bi bi-calendar-check"></i> Offerings
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+                
+                <div class="user-info">
+                    <span class="user-name">
+                        <i class="bi bi-person-circle"></i> @User.Identity.Name
+                    </span>
+                    <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
+                        <button type="submit" class="logout-btn">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                @if (User.IsInRole("Admin"))
+                {
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="AdminStudents" asp-action="Index">
+                            <i class="bi bi-people-fill sidebar-icon"></i>
+                            <span>Manage Students</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="AdminCourses" asp-action="Index">
+                            <i class="bi bi-book-fill sidebar-icon"></i>
+                            <span>Manage Courses</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="AdminCourseOfferings" asp-action="Index">
+                            <i class="bi bi-calendar-check-fill sidebar-icon"></i>
+                            <span>Manage Offerings</span>
+                        </a>
+                    </li>
+                }
+                else if (User.IsInRole("Student"))
+                {
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="StudentDashboard" asp-action="Dashboard">
+                            <i class="bi bi-speedometer2 sidebar-icon"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="StudentDashboard" asp-action="BrowseCourses">
+                            <i class="bi bi-search sidebar-icon"></i>
+                            <span>Browse Courses</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="StudentDashboard" asp-action="MyCourses">
+                            <i class="bi bi-bookmark-fill sidebar-icon"></i>
+                            <span>My Courses</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="StudentDashboard" asp-action="Grades">
+                            <i class="bi bi-trophy-fill sidebar-icon"></i>
+                            <span>Grades</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="StudentProfile" asp-action="Profile">
+                            <i class="bi bi-person-fill sidebar-icon"></i>
+                            <span>My Profile</span>
+                        </a>
+                    </li>
+                }
+                else if (User.IsInRole("Faculty"))
+                {
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="FacultyDashboard" asp-action="Dashboard">
+                            <i class="bi bi-speedometer2 sidebar-icon"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="FacultyCourses" asp-action="MyOfferings">
+                            <i class="bi bi-calendar-check-fill sidebar-icon"></i>
+                            <span>My Offerings</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="FacultyProfile" asp-action="Profile">
+                            <i class="bi bi-person-fill sidebar-icon"></i>
+                            <span>My Profile</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-wrapper">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <div class="flex-grow-1">
+                            <strong>Success!</strong> @TempData["Success"]
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <div class="flex-grow-1">
+                            <strong>Error!</strong> @TempData["Error"]
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @RenderBody()
+            </div>
+        </main>
+    }
+    else
+    {
+        <!-- Public Layout (No Sidebar) -->
+        <header class="main-header">
+            <div class="main-nav">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-mortarboard-fill navbar-brand-icon"></i>
+                    <span>SIMS</span>
+                </a>
+                <div class="user-info">
+                    <a class="nav-link" asp-controller="Auth" asp-action="Login">
+                        <i class="bi bi-box-arrow-in-right"></i> Login
+                    </a>
+                    <a class="nav-link" asp-controller="Auth" asp-action="Register">
+                        <i class="bi bi-person-plus"></i> Register
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <main style="margin-top: 60px; padding: 20px;">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <div class="flex-grow-1">
+                        <strong>Success!</strong> @TempData["Success"]
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <div class="flex-grow-1">
+                        <strong>Error!</strong> @TempData["Error"]
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @RenderBody()
+        </main>
+    }
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="mb-0">&copy; 2025 Student Information Management System (SIMS). All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <script>
+        // Set active sidebar link
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+            sidebarLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

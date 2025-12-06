@@ -1,0 +1,68 @@
+@model SIMS_VER2.Models.CourseOffering
+@{
+    ViewData["Title"] = "Thêm mới Lớp học phần";
+}
+
+<h2>Thêm mới Lớp học phần</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group mb-3">
+                <label asp-for="CourseId" class="form-label">Môn học</label>
+                <select asp-for="CourseId" class="form-control" asp-items="ViewBag.Courses">
+                    <option value="">-- Chọn môn học --</option>
+                </select>
+                <span asp-validation-for="CourseId" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Semester" class="form-label"></label>
+                <input asp-for="Semester" class="form-control" />
+                <span asp-validation-for="Semester" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Year" class="form-label"></label>
+                <input asp-for="Year" type="number" class="form-control" />
+                <span asp-validation-for="Year" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="ClassCode" class="form-label"></label>
+                <input asp-for="ClassCode" class="form-control" />
+                <span asp-validation-for="ClassCode" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="InstructorUserId" class="form-label">Giảng viên</label>
+                <select asp-for="InstructorUserId" class="form-control" asp-items="ViewBag.Instructors">
+                    <option value="">-- Chọn giảng viên --</option>
+                </select>
+                <span asp-validation-for="InstructorUserId" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="MaxStudents" class="form-label"></label>
+                <input asp-for="MaxStudents" type="number" class="form-control" />
+                <span asp-validation-for="MaxStudents" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Status" class="form-label"></label>
+                <select asp-for="Status" class="form-control">
+                    <option value="OPEN">OPEN</option>
+                    <option value="CLOSED">CLOSED</option>
+                    <option value="ONGOING">ONGOING</option>
+                    <option value="FINISHED">FINISHED</option>
+                </select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Lưu</button>
+                <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

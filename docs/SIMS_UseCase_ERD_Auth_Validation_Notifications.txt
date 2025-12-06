@@ -1,0 +1,352 @@
+1. Use Case
+1.1. Actors
+
+Guest: người chưa đăng nhập (chỉ Login, Register).
+Student: sinh viên.
+Faculty: giảng viên.
+Admin: quản trị hệ thống / phòng đào tạo.
+
+1.2. Danh sách Use Case chính
+
+Actor: Guest
+
+UC01 – Login
+Mục tiêu: Đăng nhập vào hệ thống để sử dụng các chức năng tương ứng role.
+
+Luồng chính:
+- Người dùng mở trang Login.
+- Nhập username + password.
+- Hệ thống kiểm tra thông tin.
+- Nếu hợp lệ → chuyển đến Dashboard tương ứng (Admin/Student/Faculty).
+
+UC02 – Student Register Account
+Mục tiêu: Sinh viên tạo tài khoản đăng nhập dựa trên mã SV có sẵn.
+
+Luồng chính:
+- Mở trang Register.
+- Nhập StudentCode, Username, Password, ConfirmPassword.
+- Hệ thống kiểm tra:
+  + StudentCode tồn tại trong bảng Student.
+  + Student đó chưa liên kết với User.
+  + Username chưa tồn tại.
+  + Password = ConfirmPassword.
+- Hệ thống tạo User mới (Role = Student) + liên kết với Student.
+- Đăng nhập tự động và chuyển tới Student Dashboard.
+
+Actor: Admin
+
+UC10 – Quản lý sinh viên (Student Management)
+Bao gồm:
+- UC10.1: Xem danh sách sinh viên.
+- UC10.2: Thêm mới sinh viên.
+- UC10.3: Sửa thông tin sinh viên.
+- UC10.4: Xem chi tiết sinh viên.
+- UC10.5: Xóa / vô hiệu hóa sinh viên.
+Lưu ý: Khi thêm mới sinh viên, StudentCode được sinh tự động theo format BDXXXXX.
+
+UC11 – Quản lý môn học (Course Management)
+- UC11.1: Xem danh sách môn học.
+- UC11.2: Thêm mới môn.
+- UC11.3: Sửa môn.
+- UC11.4: Xem chi tiết môn.
+- UC11.5: Xóa / vô hiệu hóa môn.
+
+UC12 – Quản lý lớp học phần (Course Offering Management)
+- UC12.1: Xem danh sách lớp học phần.
+- UC12.2: Thêm lớp học phần (gắn với Course).
+- UC12.3: Sửa lớp học phần (giảng viên, sĩ số, trạng thái).
+- UC12.4: Xem chi tiết lớp học phần.
+
+UC13 – Gán sinh viên vào lớp học phần (Enrollment Management)
+- UC13.1: Xem danh sách sinh viên trong một lớp học phần.
+- UC13.2: Thêm sinh viên vào lớp (tạo Enrollment).
+- UC13.3: Xóa sinh viên khỏi lớp (xóa Enrollment hoặc đổi status).
+
+Actor: Student
+
+UC20 – Xem Dashboard sinh viên
+- Hiển thị thông tin cơ bản: tên, mã SV, chương trình, khóa.
+- Danh sách lớp đang học.
+
+UC21 – Xem & cập nhật hồ sơ cá nhân
+- Xem toàn bộ thông tin.
+- Cập nhật được: Email, Phone, Address.
+
+UC22 – Xem danh sách môn đã/đang học
+- Danh sách tất cả Enrollment của sinh viên.
+- Thông tin: Course, ClassCode, Semester, Status, Grade (nếu có).
+
+(Optional)
+UC23 – Đăng ký môn học
+- Xem danh sách lớp học phần mở (OPEN) cho chương trình của mình.
+- Đăng ký nếu thỏa điều kiện (chưa full, chưa học rồi, qua môn tiên quyết).
+
+Actor: Faculty
+
+UC30 – Xem Dashboard giảng viên
+- Hiển thị danh sách lớp học phần mà giảng viên đang phụ trách.
+
+UC31 – Xem danh sách sinh viên trong lớp học phần
+- Chọn lớp → Xem danh sách Enrollment (StudentCode, FullName, Program, Status).
+
+(Optional)
+UC32 – Nhập điểm cho sinh viên trong lớp
+
+
+2. ERD (Entity Relationship Diagram – mô tả bằng chữ)
+2.1. Các thực thể chính
+
+1. User
+- Id (PK, int, identity)
+- Username (unique)
+- PasswordHash
+- Role (enum: Admin/Student/Faculty)
+- Active (bool)
+
+2. Student
+- Id (PK, int, identity)
+- StudentCode (unique, string, format BDXXXXX)
+- FullName
+- DateOfBirth
+- Gender
+- Email
+- Phone
+- Address
+- Program
+- Intake
+- Status (ACTIVE/GRADUATED/...)
+- UserId (FK → User.Id, nullable)
+
+3. Course
+- Id (PK, int, identity)
+- CourseCode (unique)
+- CourseName
+- Description
+- Credits
+- Program
+- Type (CORE/ELECTIVE/…)
+
+4. CourseOffering
+- Id (PK, int, identity)
+- CourseId (FK → Course.Id)
+- Semester
+- Year
+- ClassCode
+- InstructorUserId (FK → User.Id, role = Faculty)
+- MaxStudents
+- Status (OPEN/CLOSED/ONGOING/FINISHED)
+
+5. Enrollment
+- Id (PK, int, identity)
+- StudentId (FK → Student.Id)
+- CourseOfferingId (FK → CourseOffering.Id)
+- Status (ENROLLED/DROPPED/COMPLETED)
+- Grade (nullable)
+
+2.2. Quan hệ
+
+User – Student:
+- 1 User (Student role) ↔ 1 Student (1–1, optional).
+- 1 User (Admin/Faculty) có thể không có Student.
+
+Course – CourseOffering:
+- 1 Course ↔ N CourseOffering (1–N).
+
+User (Faculty) – CourseOffering:
+- 1 Faculty ↔ N CourseOffering (1–N).
+
+Student – Enrollment – CourseOffering:
+- Student ↔ Enrollment: 1–N.
+- CourseOffering ↔ Enrollment: 1–N.
+=> Quan hệ Student – CourseOffering là N–N thông qua Enrollment.
+
+
+3. Authorization Logic (RBAC)
+3.1. Mức Controller/Route
+
+Dùng attribute:
+- [Authorize] cho tất cả controller trừ Auth + Home.
+
+- [Authorize(Roles = "Admin")]
+  + AdminStudentsController
+  + AdminCoursesController
+  + AdminCourseOfferingsController
+  + AdminEnrollmentsController
+
+- [Authorize(Roles = "Student")]
+  + StudentDashboardController
+  + StudentProfileController
+
+- [Authorize(Roles = "Faculty")]
+  + FacultyDashboardController
+  + FacultyCoursesController
+
+
+3.2. Mức Business Logic (Service)
+
+Ngoài [Authorize], cần logic:
+
+1) Student chỉ xem/sửa hồ sơ của chính mình
+- Khi lấy Student trong StudentProfileController:
+  + Lấy currentUserId từ Claims.
+  + Tìm Student có UserId = currentUserId.
+  + Không dùng id từ query string cho student.
+
+2) Student chỉ xem Enrollment của chính mình
+- Lấy Student hiện tại → query Enrollment theo StudentId đó.
+
+3) Faculty chỉ xem lớp mình dạy
+- Trong FacultyCoursesController:
+  + currentUserId = UserId từ Claims.
+  + Query CourseOffering where InstructorUserId = currentUserId.
+
+4) Admin có toàn quyền nhưng vẫn nên check logic nghiệp vụ
+- Ví dụ: không cho xóa CourseOffering nếu đang có Enrollment (hoặc phải xử lý Enrollment trước).
+
+
+4. Validation (đặc biệt StudentCode = BDXXXXX)
+4.1. Quy tắc StudentCode
+
+Format: BDXXXXX
+- BD là prefix cố định.
+- XXXXX là số thứ tự từ 1 trở đi, zero-padding 5 chữ số:
+  + 1 → BD00001
+  + 2 → BD00002
+  + …
+  + 123 → BD00123
+
+Tính chất:
+- Duy nhất trong bảng Student.
+- Không để người dùng nhập tay (nên auto-generate khi Admin tạo sinh viên).
+- Có thể cho hiển thị readonly trong form.
+
+
+4.2. Cách sinh StudentCode (logic trong Service, pseudo-code)
+
+public async Task<string> GenerateNextStudentCodeAsync()
+{
+    // Lấy mã lớn nhất hiện có có dạng BDxxxxx
+    var lastStudent = await _db.Students
+        .Where(s => s.StudentCode.StartsWith("BD"))
+        .OrderByDescending(s => s.StudentCode)
+        .FirstOrDefaultAsync();
+
+    int nextNumber = 1;
+
+    if (lastStudent != null)
+    {
+        var lastCode = lastStudent.StudentCode; // ví dụ: "BD00025"
+        var numberPart = lastCode.Substring(2); // "00025"
+        if (int.TryParse(numberPart, out var n))
+        {
+            nextNumber = n + 1;
+        }
+    }
+
+    // Zero-pad 5 chữ số
+    var nextCode = $"BD{nextNumber:D5}"; // D5 => 00001, 00002,...
+    return nextCode;
+}
+
+- Khi tạo Student mới trong StudentService.CreateAsync:
+  + Nếu student.StudentCode trống → gọi GenerateNextStudentCodeAsync() và gán.
+
+Validation:
+- Check StudentCode match regex: ^BD\d{5}$.
+- Check uniqueness (DB constraint + kiểm tra ở service).
+
+(Nếu lo race condition (2 người tạo cùng lúc):
+- có thể bọc trong transaction hoặc để DB tự phát hiện duplicate StudentCode, sau đó generate lại & retry (nhưng trong bài môn học thường không cần quá deep).)
+
+
+4.3. Validation khác
+
+User / Auth:
+- Username: required, min length, không trùng.
+- Password: required, min length (>= 6 hoặc 8), ConfirmPassword trùng.
+
+Course:
+- CourseCode unique, required.
+- Credits > 0.
+
+CourseOffering:
+- MaxStudents > 0.
+- Semester required.
+- Year >= năm hiện tại (tuỳ logic).
+
+Enrollment:
+- Không cho tạo nếu:
+  + Đã tồn tại Enrollment (Student + Offering).
+  + Số Enrollment của Offering >= MaxStudents.
+
+
+5. Error Handling & Success Notification
+5.1. Cách làm tổng quát trong MVC .NET
+
+1) Validation Error (Form)
+- Sử dụng ModelState.AddModelError khi validation fail.
+- Trong View sử dụng:
+  + @Html.ValidationSummary() để hiển thị lỗi chung.
+  + @Html.ValidationMessageFor(m => m.Field) cho từng field.
+
+2) Error/Success message (sau Redirect)
+- Dùng TempData:
+  + TempData["Success"] = "Student created successfully";
+  + TempData["Error"] = "Cannot delete this course because it has offerings";
+- Trong _Layout.cshtml:
+  + Nếu TempData["Success"] != null → hiện banner màu xanh.
+  + Nếu TempData["Error"] != null → hiện banner màu đỏ.
+
+3) Exception Handling
+- Ở Service:
+  + Với lỗi nghiệp vụ: throw Exception hoặc custom exception với message dễ hiểu.
+- Ở Controller:
+  + Bọc trong try/catch:
+    * catch → TempData["Error"] = ex.Message;
+    * Redirect về trang phù hợp (list hoặc form).
+- Global:
+  + Dùng app.UseExceptionHandler("/Home/Error") cho lỗi không bắt được.
+  + Tạo Views/Shared/Error.cshtml hiển thị:
+    * Thông báo chung: “Có lỗi xảy ra. Vui lòng thử lại sau.”
+    * Không show stack trace cho user.
+
+
+5.2. Ví dụ pattern Controller (pseudo-code)
+
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Create(Student student)
+{
+    if (!ModelState.IsValid)
+    {
+        return View(student);
+    }
+
+    try
+    {
+        await _studentService.CreateAsync(student);
+        TempData["Success"] = "Student created successfully.";
+        return RedirectToAction(nameof(Index));
+    }
+    catch (Exception ex)
+    {
+        TempData["Error"] = ex.Message;
+        return View(student);
+    }
+}
+
+5.3. Ví dụ hiển thị TempData trong _Layout.cshtml
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}

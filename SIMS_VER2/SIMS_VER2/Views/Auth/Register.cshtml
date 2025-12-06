@@ -1,0 +1,84 @@
+@model SIMS_VER2.Models.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+    Layout = "_Layout";
+}
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h2><i class="bi bi-person-plus"></i> Student Registration</h2>
+            <p>Create your account to get started</p>
+        </div>
+        
+        @if (ViewData.ModelState.ErrorCount > 0)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <div class="flex-grow-1">
+                    <strong>Error:</strong>
+                    <ul class="mb-0 mt-2">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        
+        <form asp-action="Register" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="StudentCode" class="form-label">
+                    <i class="bi bi-card-text"></i> Student Code
+                </label>
+                <input asp-for="StudentCode" class="form-control form-control-lg" placeholder="Enter your student code (e.g., BD00001)" />
+                <span asp-validation-for="StudentCode" class="text-danger small"></span>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="Username" class="form-label">
+                    <i class="bi bi-person"></i> Username
+                </label>
+                <input asp-for="Username" class="form-control form-control-lg" placeholder="Choose a username" />
+                <span asp-validation-for="Username" class="text-danger small"></span>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="Password" class="form-label">
+                    <i class="bi bi-lock"></i> Password
+                </label>
+                <input asp-for="Password" type="password" class="form-control form-control-lg" placeholder="Enter password (min 6 characters)" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="ConfirmPassword" class="form-label">
+                    <i class="bi bi-lock-fill"></i> Confirm Password
+                </label>
+                <input asp-for="ConfirmPassword" type="password" class="form-control form-control-lg" placeholder="Confirm your password" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+            </div>
+            
+            <div class="form-group mb-3">
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                    <i class="bi bi-person-plus"></i> Register
+                </button>
+            </div>
+            
+            <div class="text-center">
+                <p class="mb-0">
+                    Already have an account? 
+                    <a asp-action="Login" class="text-primary text-decoration-none fw-bold">Login</a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

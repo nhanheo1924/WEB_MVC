@@ -1,0 +1,159 @@
+@{
+    ViewData["Title"] = "Student Dashboard";
+    var student = ViewBag.Student as SIMS_VER2.Models.Student;
+    var enrollments = ViewBag.CurrentEnrollments as IEnumerable<SIMS_VER2.Models.Enrollment>;
+}
+
+<h1 class="page-title">
+    <i class="bi bi-speedometer2"></i> Student Dashboard
+</h1>
+
+<div class="stats-grid">
+    <div class="dashboard-card">
+        <div class="dashboard-card-icon">
+            <i class="bi bi-bookmark-fill"></i>
+        </div>
+        <div class="dashboard-card-title">Enrolled Courses</div>
+        <div class="dashboard-card-value">@(enrollments?.Count() ?? 0)</div>
+        <a href="@Url.Action("MyCourses", "StudentDashboard")" class="btn btn-outline-primary btn-sm mt-2">
+            View Details <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    
+    <div class="dashboard-card">
+        <div class="dashboard-card-icon">
+            <i class="bi bi-search"></i>
+        </div>
+        <div class="dashboard-card-title">Available Courses</div>
+        <div class="dashboard-card-value">-</div>
+        <a href="@Url.Action("BrowseCourses", "StudentDashboard")" class="btn btn-outline-primary btn-sm mt-2">
+            Browse Now <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    
+    <div class="dashboard-card">
+        <div class="dashboard-card-icon">
+            <i class="bi bi-trophy-fill"></i>
+        </div>
+        <div class="dashboard-card-title">Graded Courses</div>
+        <div class="dashboard-card-value">@(enrollments?.Count(e => e.Grade.HasValue) ?? 0)</div>
+        <a href="@Url.Action("Grades", "StudentDashboard")" class="btn btn-outline-primary btn-sm mt-2">
+            View Grades <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-person-fill"></i> Personal Information
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <td><strong>Student Code:</strong></td>
+                        <td>@student?.StudentCode</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Full Name:</strong></td>
+                        <td>@student?.FullName</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Program:</strong></td>
+                        <td>@student?.Program</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Intake:</strong></td>
+                        <td>@student?.Intake</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Status:</strong></td>
+                        <td>
+                            <span class="badge badge-success">@student?.Status</span>
+                        </td>
+                    </tr>
+                </table>
+                <a asp-controller="StudentProfile" asp-action="Profile" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-pencil"></i> Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-lightning-fill"></i> Quick Actions
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-controller="StudentDashboard" asp-action="BrowseCourses" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Browse Available Courses
+                    </a>
+                    <a asp-controller="StudentDashboard" asp-action="MyCourses" class="btn btn-info">
+                        <i class="bi bi-bookmark"></i> My Enrolled Courses
+                    </a>
+                    <a asp-controller="StudentDashboard" asp-action="Grades" class="btn btn-success">
+                        <i class="bi bi-trophy"></i> View My Grades
+                    </a>
+                    <a asp-controller="StudentProfile" asp-action="Profile" class="btn btn-secondary">
+                        <i class="bi bi-person"></i> View/Edit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (enrollments != null && enrollments.Any())
+{
+    <div class="card">
+        <div class="card-header">
+            <i class="bi bi-book-fill"></i> Recent Enrollments
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Course</th>
+                            <th>Class Code</th>
+                            <th>Semester</th>
+                            <th>Status</th>
+                            <th>Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var enrollment in enrollments.Take(5))
+                        {
+                            <tr>
+                                <td>@enrollment.CourseOffering?.Course?.CourseName</td>
+                                <td>@enrollment.CourseOffering?.ClassCode</td>
+                                <td>@enrollment.CourseOffering?.Semester @enrollment.CourseOffering?.Year</td>
+                                <td>
+                                    <span class="badge badge-success">@enrollment.Status</span>
+                                </td>
+                                <td>
+                                    @if (enrollment.Grade.HasValue)
+                                    {
+                                        <span class="badge badge-primary">@enrollment.Grade.Value.ToString("F2")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Not graded</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-center mt-3">
+                <a asp-controller="StudentDashboard" asp-action="MyCourses" class="btn btn-outline-primary">
+                    View All Courses <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+}

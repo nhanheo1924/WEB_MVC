@@ -1,0 +1,93 @@
+SimsMvc/
+ ├─ Controllers/
+ │   ├─ HomeController.cs
+ │   ├─ AuthController.cs           // Login, Logout, Register (Student)
+ │   │
+ │   ├─ AdminStudentsController.cs  // CRUD Student (Admin)
+ │   ├─ AdminCoursesController.cs   // CRUD Course (Admin)
+ │   ├─ AdminCourseOfferingsController.cs // CRUD CourseOffering (Admin)
+ │   ├─ AdminEnrollmentsController.cs     // Gán sinh viên vào lớp (Admin)
+ │   │
+ │   ├─ StudentDashboardController.cs     // Dashboard + MyCourses
+ │   ├─ StudentProfileController.cs       // Xem/Sửa hồ sơ cá nhân
+ │   │
+ │   ├─ FacultyDashboardController.cs     // Lớp đang dạy
+ │   ├─ FacultyCoursesController.cs       // Xem SV trong lớp
+ │
+ ├─ Data/
+ │   ├─ ApplicationDbContext.cs     // DbContext, DbSet, OnModelCreating
+ │
+ ├─ Models/
+ │   ├─ Role.cs                     // enum Role { Admin, Student, Faculty }
+ │   ├─ User.cs                     // Id, Username, PasswordHash, Role, Active
+ │   ├─ Student.cs                  // StudentCode, FullName, Program, Intake...
+ │   ├─ Course.cs                   // CourseCode, CourseName, Credits...
+ │   ├─ CourseOffering.cs           // Course, Semester, Year, ClassCode, Instructor...
+ │   ├─ Enrollment.cs               // Student, CourseOffering, Status, Grade...
+ │   │
+ │   └─ ViewModels/
+ │       ├─ LoginViewModel.cs       // Username, Password
+ │       ├─ RegisterViewModel.cs    // StudentCode, Username, Password, ConfirmPassword
+ │
+ ├─ Services/
+ │   ├─ IUserService.cs             // ValidateUser, RegisterStudent, GetById...
+ │   ├─ IStudentService.cs          // GetAll, GetById, Create, Update, Delete...
+ │   ├─ ICourseService.cs
+ │   ├─ ICourseOfferingService.cs
+ │   ├─ IEnrollmentService.cs
+ │   │
+ │   └─ Implementations/
+ │       ├─ UserService.cs          // xử lý login, register, hash password...
+ │       ├─ StudentService.cs
+ │       ├─ CourseService.cs
+ │       ├─ CourseOfferingService.cs
+ │       ├─ EnrollmentService.cs
+ │
+ ├─ Views/
+ │   ├─ Shared/
+ │   │   ├─ _Layout.cshtml          // layout chung
+ │   │   ├─ _AdminLayout.cshtml     // layout cho Admin (optional)
+ │   │   ├─ _StudentLayout.cshtml   // layout cho Student (optional)
+ │   │   ├─ _FacultyLayout.cshtml   // layout cho Faculty (optional)
+ │   │   ├─ _ValidationScriptsPartial.cshtml
+ │   │
+ │   ├─ Home/
+ │   │   ├─ Index.cshtml            // trang chào / redirect login
+ │   │
+ │   ├─ Auth/
+ │   │   ├─ Login.cshtml            // form login
+ │   │   ├─ Register.cshtml         // form register student
+ │   │   ├─ AccessDenied.cshtml     // khi bị chặn quyền
+ │   │
+ │   ├─ AdminStudents/
+ │   │   ├─ Index.cshtml            // danh sách SV
+ │   │   ├─ Create.cshtml           // thêm SV
+ │   │   ├─ Edit.cshtml             // sửa SV
+ │   │   ├─ Details.cshtml          // xem chi tiết SV
+ │   │
+ │   ├─ AdminCourses/
+ │   │   ├─ Index.cshtml
+ │   │   ├─ Create.cshtml
+ │   │   ├─ Edit.cshtml
+ │   │   ├─ Details.cshtml
+ │   │
+ │   ├─ AdminCourseOfferings/
+ │   │   ├─ Index.cshtml
+ │   │   ├─ Create.cshtml
+ │   │   ├─ Edit.cshtml
+ │   │   ├─ Details.cshtml
+ │   │   ├─ Students.cshtml         // danh sách SV trong lớp + form add/remove
+ │   │
+ │   ├─ Student/
+ │   │   ├─ Dashboard.cshtml        // tổng quan môn đang học
+ │   │   ├─ Profile.cshtml          // hồ sơ cá nhân
+ │   │   ├─ MyCourses.cshtml        // danh sách môn đã/đang học
+ │   │
+ │   ├─ Faculty/
+ │       ├─ Dashboard.cshtml        // tổng quan lớp phụ trách
+ │       ├─ MyOfferings.cshtml      // danh sách lớp học phần
+ │       ├─ OfferingStudents.cshtml // danh sách SV trong 1 lớp
+ │
+ ├─ appsettings.json
+ ├─ Program.cs                      // cấu hình DI, MVC, EF, Authentication
+ ├─ SimsMvc.csproj

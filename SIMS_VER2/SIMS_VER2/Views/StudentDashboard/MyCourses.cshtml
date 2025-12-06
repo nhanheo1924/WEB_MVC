@@ -1,0 +1,100 @@
+@model IEnumerable<SIMS_VER2.Models.Enrollment>
+@{
+    ViewData["Title"] = "My Courses";
+    var student = ViewBag.Student as SIMS_VER2.Models.Student;
+}
+
+<h2>My Enrolled Courses</h2>
+<hr />
+
+@if (student != null)
+{
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Student Information</h5>
+                    <p class="mb-1"><strong>Student Code:</strong> @student.StudentCode</p>
+                    <p class="mb-1"><strong>Name:</strong> @student.FullName</p>
+                    <p class="mb-0"><strong>Program:</strong> @student.Program</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Statistics</h5>
+                    <p class="mb-1"><strong>Total Enrollments:</strong> @Model.Count()</p>
+                    <p class="mb-1"><strong>Active:</strong> @Model.Count(e => e.Status == "ENROLLED")</p>
+                    <p class="mb-0"><strong>With Grades:</strong> @Model.Count(e => e.Grade.HasValue)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model != null && Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Class Code</th>
+                    <th>Course Name</th>
+                    <th>Course Code</th>
+                    <th>Credits</th>
+                    <th>Semester</th>
+                    <th>Year</th>
+                    <th>Instructor</th>
+                    <th>Status</th>
+                    <th>Grade</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderByDescending(e => e.CourseOffering.Year).ThenByDescending(e => e.CourseOffering.Semester))
+                {
+                    <tr>
+                        <td><strong>@item.CourseOffering?.ClassCode</strong></td>
+                        <td>@item.CourseOffering?.Course?.CourseName</td>
+                        <td>@item.CourseOffering?.Course?.CourseCode</td>
+                        <td>@item.CourseOffering?.Course?.Credits</td>
+                        <td>@item.CourseOffering?.Semester</td>
+                        <td>@item.CourseOffering?.Year</td>
+                        <td>@(item.CourseOffering?.Instructor?.Username ?? "TBA")</td>
+                        <td>
+                            <span class="badge bg-@(item.Status == "ENROLLED" ? "success" : "secondary")">
+                                @item.Status
+                            </span>
+                        </td>
+                        <td>
+                            @if (item.Grade.HasValue)
+                            {
+                                var grade = item.Grade.Value;
+                                var gradeClass = grade >= 8.0m ? "text-success fw-bold" : grade >= 6.5m ? "text-primary fw-bold" : grade >= 5.0m ? "text-warning fw-bold" : "text-danger fw-bold";
+                                <span class="@gradeClass">@grade.ToString("F2")</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">N/A</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <h5>No enrolled courses</h5>
+        <p>You haven't enrolled in any courses yet. <a asp-action="BrowseCourses" class="alert-link">Browse available courses</a> to get started.</p>
+    </div>
+}
+
+<div class="mt-4">
+    <a asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+    <a asp-action="BrowseCourses" class="btn btn-primary">Browse Available Courses</a>
+    <a asp-action="Grades" class="btn btn-outline-info">View Grades</a>
+</div>
+

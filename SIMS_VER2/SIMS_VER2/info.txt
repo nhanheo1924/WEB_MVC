@@ -1,0 +1,493 @@
+================================================================================
+STUDENT INFORMATION MANAGEMENT SYSTEM (SIMS) - PROJECT INFORMATION
+================================================================================
+
+Project Name: SIMS_VER2
+Framework: ASP.NET Core MVC (.NET 8.0)
+Database: SQL Server (LocalDB)
+Database Name: SIMS_DB2
+
+================================================================================
+USE CASES
+================================================================================
+
+1. AUTHENTICATION & AUTHORIZATION
+   - UC-001: User Login
+     * Actors: Admin, Student, Faculty
+     * Description: User can log in with username and password
+     * Preconditions: User account exists and is active
+     * Postconditions: User is authenticated and redirected to appropriate dashboard
+   
+   - UC-002: User Registration
+     * Actors: Student (self-registration)
+     * Description: New student can register for an account
+     * Preconditions: None
+     * Postconditions: New student account created with ACTIVE status
+   
+   - UC-003: User Logout
+     * Actors: All authenticated users
+     * Description: User can log out from the system
+     * Preconditions: User is authenticated
+     * Postconditions: User session is terminated
+
+2. ADMIN USE CASES
+   - UC-004: Manage Students
+     * Create, Read, Update, Delete student records
+     * View student details
+     * Edit all student information
+   
+   - UC-005: Manage Courses
+     * Create, Read, Update, Delete course records
+     * View course details
+     * Edit all course information
+   
+   - UC-006: Manage Course Offerings
+     * Create, Read, Update, Delete course offerings
+     * Assign instructors to course offerings
+     * Manage student enrollments in course offerings
+     * View offering details
+
+3. STUDENT USE CASES
+   - UC-007: Browse Available Courses
+     * View available course offerings
+     * Filter by program
+     * View course details (instructor, schedule, enrollment status)
+   
+   - UC-008: Enroll in Course
+     * Enroll in available course offerings
+     * Check enrollment capacity
+     * View enrollment status
+   
+   - UC-009: View My Courses
+     * View enrolled courses
+     * View course details
+     * View grades for completed courses
+   
+   - UC-010: View Grades
+     * View academic transcript
+     * View GPA calculation
+     * View individual course grades
+   
+   - UC-011: Edit Profile
+     * Edit basic profile information (FullName, DateOfBirth, Gender, Email, Phone, Address)
+     * Cannot edit StudentCode, Program, Intake, Status
+
+4. FACULTY USE CASES
+   - UC-012: View My Course Offerings
+     * View assigned course offerings
+     * View enrollment statistics
+     * View offering status
+   
+   - UC-013: Manage Students & Grades
+     * View enrolled students in course offerings
+     * Enter/Update student grades (0-10 scale)
+     * View student information
+     * Clear grades if needed
+   
+   - UC-014: Edit Profile
+     * Edit username
+     * View profile information
+
+================================================================================
+CLASSES
+================================================================================
+
+1. MODELS (SIMS_VER2.Models)
+   --------------------------
+   
+   a) User
+      - Properties:
+        * Id (int)
+        * Username (string)
+        * PasswordHash (string)
+        * Role (Role enum)
+        * Active (bool)
+      - Purpose: Represents system users (Admin, Student, Faculty)
+   
+   b) Role (Enum)
+      - Values: Admin, Student, Faculty
+      - Purpose: Defines user roles in the system
+   
+   c) Student
+      - Properties:
+        * Id (int)
+        * StudentCode (string, max 10)
+        * FullName (string, max 100)
+        * DateOfBirth (DateTime?)
+        * Gender (string?, max 10)
+        * Email (string?, max 100)
+        * Phone (string?, max 20)
+        * Address (string?, max 200)
+        * Program (string?, max 50)
+        * Intake (string?, max 20)
+        * Status (string, max 20, default: "ACTIVE")
+        * UserId (int?)
+        * User (User navigation property)
+        * Enrollments (ICollection<Enrollment>)
+      - Purpose: Represents student information
+   
+   d) Course
+      - Properties:
+        * Id (int)
+        * CourseCode (string, max 20)
+        * CourseName (string, max 100)
+        * Description (string?, max 500)
+        * Credits (int)
+        * Program (string?, max 50)
+        * Type (string?, max 20) - CORE or ELECTIVE
+        * CourseOfferings (ICollection<CourseOffering>)
+      - Purpose: Represents course catalog information
+   
+   e) CourseOffering
+      - Properties:
+        * Id (int)
+        * CourseId (int)
+        * Course (Course navigation property)
+        * Semester (string, max 20)
+        * Year (int)
+        * ClassCode (string, max 20)
+        * InstructorUserId (int?)
+        * Instructor (User navigation property)
+        * MaxStudents (int)
+        * Status (string, max 20, default: "OPEN") - OPEN, CLOSED, ONGOING, FINISHED
+        * Enrollments (ICollection<Enrollment>)
+      - Purpose: Represents a specific offering of a course in a semester/year
+   
+   f) Enrollment
+      - Properties:
+        * Id (int)
+        * StudentId (int)
+        * Student (Student navigation property)
+        * CourseOfferingId (int)
+        * CourseOffering (CourseOffering navigation property)
+        * Status (string, max 20, default: "ENROLLED")
+        * Grade (decimal?, precision 5,2) - Scale 0-10
+      - Purpose: Represents student enrollment in a course offering with grade
+   
+   g) ErrorViewModel
+      - Properties:
+        * RequestId (string)
+      - Purpose: Used for error page display
+
+2. VIEW MODELS (SIMS_VER2.Models.ViewModels)
+   -------------------------------------------
+   
+   a) LoginViewModel
+      - Properties:
+        * Username (string, required)
+        * Password (string, required)
+      - Purpose: Data transfer object for login form
+   
+   b) RegisterViewModel
+      - Properties:
+        * Username (string, required)
+        * Password (string, required)
+        * ConfirmPassword (string, required)
+        * FullName (string, required)
+        * Email (string, email validation)
+        * Phone (string)
+        * Program (string, required)
+      - Purpose: Data transfer object for student registration form
+
+3. DATA ACCESS (SIMS_VER2.Data)
+   ------------------------------
+   
+   a) ApplicationDbContext
+      - Inherits: DbContext
+      - DbSets:
+        * Users (DbSet<User>)
+        * Students (DbSet<Student>)
+        * Courses (DbSet<Course>)
+        * CourseOfferings (DbSet<CourseOffering>)
+        * Enrollments (DbSet<Enrollment>)
+      - Purpose: Entity Framework Core database context
+      - Methods:
+        * OnModelCreating: Configures entity relationships, constraints, indexes
+   
+   b) DbInitializer
+      - Methods:
+        * InitializeAsync: Seeds initial database data (commented out, using SQL script instead)
+        * HashPassword: Creates SHA256 + Base64 password hash
+
+4. SERVICES (SIMS_VER2.Services)
+   -------------------------------
+   
+   a) Interfaces:
+      - IUserService
+        * ValidateUserAsync(string username, string password): Task<User?>
+        * GetByIdAsync(int id): Task<User?>
+        * CreateAsync(User user): Task<User>
+      
+      - IStudentService
+        * GetAllAsync(): Task<IEnumerable<Student>>
+        * GetByIdAsync(int id): Task<Student?>
+        * GetByCodeAsync(string code): Task<Student?>
+        * CreateAsync(Student student): Task<Student>
+        * UpdateAsync(Student student): Task<Student>
+        * DeleteAsync(int id): Task<bool>
+      
+      - ICourseService
+        * GetAllAsync(): Task<IEnumerable<Course>>
+        * GetByIdAsync(int id): Task<Course?>
+        * CreateAsync(Course course): Task<Course>
+        * UpdateAsync(Course course): Task<Course>
+        * DeleteAsync(int id): Task<bool>
+      
+      - ICourseOfferingService
+        * GetAllAsync(): Task<IEnumerable<CourseOffering>>
+        * GetByIdAsync(int id): Task<CourseOffering?>
+        * GetByInstructorAsync(int instructorUserId): Task<IEnumerable<CourseOffering>>
+        * GetAvailableAsync(string? program): Task<IEnumerable<CourseOffering>>
+        * CreateAsync(CourseOffering offering): Task<CourseOffering>
+        * UpdateAsync(CourseOffering offering): Task<CourseOffering>
+        * DeleteAsync(int id): Task<bool>
+      
+      - IEnrollmentService
+        * GetAllAsync(): Task<IEnumerable<Enrollment>>
+        * GetByIdAsync(int id): Task<Enrollment?>
+        * GetByStudentIdAsync(int studentId): Task<IEnumerable<Enrollment>>
+        * GetByCourseOfferingIdAsync(int courseOfferingId): Task<IEnumerable<Enrollment>>
+        * CreateAsync(Enrollment enrollment): Task<Enrollment>
+        * DeleteAsync(int id): Task<bool>
+   
+   b) Implementations (SIMS_VER2.Services.Implementations):
+      - UserService: Implements IUserService
+      - StudentService: Implements IStudentService
+      - CourseService: Implements ICourseService
+      - CourseOfferingService: Implements ICourseOfferingService
+      - EnrollmentService: Implements IEnrollmentService
+
+5. CONTROLLERS (SIMS_VER2.Controllers)
+   ------------------------------------
+   
+   a) HomeController
+      - Actions: Index, Privacy, Error
+      - Purpose: Home page and error handling
+   
+   b) AuthController
+      - Actions: Login (GET/POST), Register (GET/POST), Logout (POST)
+      - Authorization: None (public)
+      - Purpose: Authentication and user registration
+   
+   c) AdminStudentsController
+      - Actions: Index, Details, Create (GET/POST), Edit (GET/POST), Delete (GET/POST)
+      - Authorization: [Authorize(Roles = "Admin")]
+      - Purpose: CRUD operations for student management
+   
+   d) AdminCoursesController
+      - Actions: Index, Details, Create (GET/POST), Edit (GET/POST), Delete (GET/POST)
+      - Authorization: [Authorize(Roles = "Admin")]
+      - Purpose: CRUD operations for course management
+   
+   e) AdminCourseOfferingsController
+      - Actions: Index, Details, Create (GET/POST), Edit (GET/POST), Delete (GET/POST), Students, AddStudent, RemoveStudent
+      - Authorization: [Authorize(Roles = "Admin")]
+      - Purpose: CRUD operations for course offering management and enrollment
+   
+   f) StudentDashboardController
+      - Actions: Dashboard, BrowseCourses, Enroll, MyCourses, Grades
+      - Authorization: [Authorize(Roles = "Student")]
+      - Purpose: Student-specific dashboard and course management
+   
+   g) StudentProfileController
+      - Actions: Profile (GET/POST)
+      - Authorization: [Authorize(Roles = "Student")]
+      - Purpose: Student profile viewing and editing
+   
+   h) FacultyDashboardController
+      - Actions: Dashboard
+      - Authorization: [Authorize(Roles = "Faculty")]
+      - Purpose: Faculty dashboard
+   
+   i) FacultyCoursesController
+      - Actions: MyOfferings, OfferingStudents (GET), UpdateGrade (POST)
+      - Authorization: [Authorize(Roles = "Faculty")]
+      - Purpose: Faculty course offering management and grading
+   
+   j) FacultyProfileController
+      - Actions: Profile (GET/POST)
+      - Authorization: [Authorize(Roles = "Faculty")]
+      - Purpose: Faculty profile viewing and editing
+
+================================================================================
+PACKAGES / NAMESPACES
+================================================================================
+
+1. ROOT NAMESPACE
+   SIMS_VER2
+   - Location: Root of project
+   - Contains: Program.cs, appsettings.json
+
+2. MODELS PACKAGE
+   SIMS_VER2.Models
+   - Location: /Models/
+   - Classes:
+     * User.cs
+     * Role.cs (enum)
+     * Student.cs
+     * Course.cs
+     * CourseOffering.cs
+     * Enrollment.cs
+     * ErrorViewModel.cs
+   
+   SIMS_VER2.Models.ViewModels
+   - Location: /Models/ViewModels/
+   - Classes:
+     * LoginViewModel.cs
+     * RegisterViewModel.cs
+
+3. DATA PACKAGE
+   SIMS_VER2.Data
+   - Location: /Data/
+   - Classes:
+     * ApplicationDbContext.cs
+     * DbInitializer.cs
+
+4. SERVICES PACKAGE
+   SIMS_VER2.Services
+   - Location: /Services/
+   - Interfaces:
+     * IUserService.cs
+     * IStudentService.cs
+     * ICourseService.cs
+     * ICourseOfferingService.cs
+     * IEnrollmentService.cs
+   
+   SIMS_VER2.Services.Implementations
+   - Location: /Services/Implementations/
+   - Classes:
+     * UserService.cs
+     * StudentService.cs
+     * CourseService.cs
+     * CourseOfferingService.cs
+     * EnrollmentService.cs
+
+5. CONTROLLERS PACKAGE
+   SIMS_VER2.Controllers
+   - Location: /Controllers/
+   - Classes:
+     * HomeController.cs
+     * AuthController.cs
+     * AdminStudentsController.cs
+     * AdminCoursesController.cs
+     * AdminCourseOfferingsController.cs
+     * StudentDashboardController.cs
+     * StudentProfileController.cs
+     * FacultyDashboardController.cs
+     * FacultyCoursesController.cs
+     * FacultyProfileController.cs
+
+6. VIEWS PACKAGE
+   Location: /Views/
+   - Structure:
+     * _ViewImports.cshtml
+     * _ViewStart.cshtml
+     * Shared/ (Layout files)
+     * Home/ (Home views)
+     * Auth/ (Authentication views)
+     * AdminStudents/ (Admin student management views)
+     * AdminCourses/ (Admin course management views)
+     * AdminCourseOfferings/ (Admin offering management views)
+     * StudentDashboard/ (Student dashboard views)
+     * StudentProfile/ (Student profile views)
+     * FacultyDashboard/ (Faculty dashboard views)
+     * FacultyCourses/ (Faculty course management views)
+     * FacultyProfile/ (Faculty profile views)
+
+================================================================================
+DATABASE SCHEMA
+================================================================================
+
+Tables:
+1. Users
+   - Id (PK, int, identity)
+   - Username (nvarchar(50), unique, not null)
+   - PasswordHash (nvarchar(255), not null)
+   - Role (int, not null) - 0: Admin, 1: Student, 2: Faculty
+   - Active (bit, default: 1)
+
+2. Students
+   - Id (PK, int, identity)
+   - StudentCode (nvarchar(10), unique, not null)
+   - FullName (nvarchar(100), not null)
+   - DateOfBirth (date, nullable)
+   - Gender (nvarchar(10), nullable)
+   - Email (nvarchar(100), nullable)
+   - Phone (nvarchar(20), nullable)
+   - Address (nvarchar(200), nullable)
+   - Program (nvarchar(50), nullable)
+   - Intake (nvarchar(20), nullable)
+   - Status (nvarchar(20), default: 'ACTIVE')
+   - UserId (FK to Users.Id, nullable)
+
+3. Courses
+   - Id (PK, int, identity)
+   - CourseCode (nvarchar(20), unique, not null)
+   - CourseName (nvarchar(100), not null)
+   - Description (nvarchar(500), nullable)
+   - Credits (int, not null)
+   - Program (nvarchar(50), nullable)
+   - Type (nvarchar(20), nullable) - 'CORE' or 'ELECTIVE'
+
+4. CourseOfferings
+   - Id (PK, int, identity)
+   - CourseId (FK to Courses.Id, not null)
+   - Semester (nvarchar(20), not null)
+   - Year (int, not null)
+   - ClassCode (nvarchar(20), not null)
+   - InstructorUserId (FK to Users.Id, nullable)
+   - MaxStudents (int, not null)
+   - Status (nvarchar(20), default: 'OPEN')
+   - Unique constraint: (CourseId, Semester, Year, ClassCode)
+
+5. Enrollments
+   - Id (PK, int, identity)
+   - StudentId (FK to Students.Id, not null)
+   - CourseOfferingId (FK to CourseOfferings.Id, not null)
+   - Status (nvarchar(20), default: 'ENROLLED')
+   - Grade (decimal(5,2), nullable) - Scale 0-10
+   - Unique constraint: (StudentId, CourseOfferingId)
+
+================================================================================
+AUTHENTICATION & AUTHORIZATION
+================================================================================
+
+Authentication Scheme: Cookie Authentication
+- Login Path: /Auth/Login
+- Access Denied Path: /Auth/AccessDenied
+- Cookie Expiration: 7 days
+
+Roles:
+1. Admin
+   - Full system access
+   - Manage students, courses, course offerings
+   - Manage enrollments
+
+2. Student
+   - Browse and enroll in courses
+   - View own courses and grades
+   - Edit own profile (limited fields)
+
+3. Faculty
+   - View assigned course offerings
+   - Manage students and grades in assigned courses
+   - Edit own profile (username only)
+
+Password Hashing: SHA256 + Base64 encoding
+
+================================================================================
+TECHNOLOGY STACK
+================================================================================
+
+- Framework: ASP.NET Core MVC 8.0
+- ORM: Entity Framework Core 8.0
+- Database: SQL Server (LocalDB)
+- Authentication: Cookie Authentication
+- UI Framework: Bootstrap 5
+- JavaScript Libraries: jQuery, jQuery Validation
+- Development Environment: Visual Studio / VS Code
+
+================================================================================
+END OF DOCUMENT
+================================================================================
+
